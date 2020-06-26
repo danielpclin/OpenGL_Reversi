@@ -4,10 +4,11 @@ include(ExternalProject)
 project(OpenGL_Practice)
 
 set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
 endif()
-add_executable(OpenGL_Practice src/main.cpp)
+add_executable(OpenGL_Practice src/main.cpp src/Renderer.cpp src/Renderer.h)
 
 
 # GLEW
@@ -31,6 +32,17 @@ include_directories(${PROJECT_NAME} ${GLEW_DIR}/include)
 target_link_libraries(${PROJECT_NAME} GLEW_LIB ${OPENGL_LIBRARIES})
 add_dependencies(${PROJECT_NAME} GLEW)
 # GLEW END
+
+## GLM
+#set(GLM_DIR dependencies/glm)
+#ExternalProject_Add(
+#        GLM
+#        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/glm"
+#        URL "https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip"
+#        CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${GLM_DIR}"
+#)
+#add_dependencies(${PROJECT_NAME} GLM)
+## GLM END
 
 # GLFW
 set(GLFW_DIR dependencies/glfw)
