@@ -1,6 +1,4 @@
-#include <cmath>
-#include <fstream>
-#include <sstream>
+
 #include "Renderer.h"
 
 static unsigned int CompileShader(unsigned int type, const std::string& source)

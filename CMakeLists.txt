@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 14)
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
 endif()
-add_executable(OpenGL_Practice src/main.cpp src/Renderer.cpp src/Renderer.h)
+add_executable(OpenGL_Practice src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h)
 
 
 # GLEW
@@ -33,16 +33,18 @@ target_link_libraries(${PROJECT_NAME} GLEW_LIB ${OPENGL_LIBRARIES})
 add_dependencies(${PROJECT_NAME} GLEW)
 # GLEW END
 
-## GLM
-#set(GLM_DIR dependencies/glm)
-#ExternalProject_Add(
-#        GLM
-#        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/glm"
-#        URL "https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip"
-#        CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${GLM_DIR}"
-#)
-#add_dependencies(${PROJECT_NAME} GLM)
-## GLM END
+# GLM
+set(GLM_DIR dependencies/glm)
+ExternalProject_Add(
+        GLM
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/glm"
+        URL "https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip"
+        CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${GLM_DIR}"
+        INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/glm ${PROJECT_SOURCE_DIR}/${GLM_DIR}/include
+)
+include_directories(${PROJECT_NAME} ${GLM_DIR}/include)
+add_dependencies(${PROJECT_NAME} GLM)
+# GLM END
 
 # GLFW
 set(GLFW_DIR dependencies/glfw)
