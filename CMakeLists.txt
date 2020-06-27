@@ -4,12 +4,30 @@ include(ExternalProject)
 project(OpenGL_Practice)
 
 set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+
+add_executable(OpenGL_Practice src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h)
+
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
 endif()
-add_executable(OpenGL_Practice src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h)
 
+# MINGW THREAD
+#https://github.com/meganz/mingw-std-threads/archive/1.0.0.zip
+set(MINGW_THREAD_DIR dependencies/mingw_thread)
+ExternalProject_Add(
+        MINGW_THREAD
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/mingw_thread"
+        GIT_REPOSITORY "https://github.com/meganz/mingw-std-threads.git"
+        CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${MINGW_THREAD_DIR}"
+        INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR> ${PROJECT_SOURCE_DIR}/${MINGW_THREAD_DIR}/include
+)
+if (WIN32)
+    add_definitions(-D_WIN32_WINNT=0x0601)
+endif()
+include_directories(${PROJECT_NAME} ${MINGW_THREAD_DIR}/include)
+add_dependencies(${PROJECT_NAME} MINGW_THREAD)
+# END
 
 # GLEW
 find_package(OpenGL REQUIRED)

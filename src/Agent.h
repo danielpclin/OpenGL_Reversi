@@ -7,10 +7,11 @@
 
 
 #include <vector>
+#include "Board.h"
 
 class Agent {
 public:
-    virtual int get_actions(const std::vector<char>& state, char color, std::vector<int> possibles) = 0;
+    virtual int get_action(Board board, char color, std::vector<int> possibles) = 0;
 };
 
 

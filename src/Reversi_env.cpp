@@ -34,6 +34,7 @@ int Reversi_env::step(int action) {
     }
     if (done()) return game_over;
     else if (action == 100){
+        // TODO check if no actions can be taken
         board.swap_color();
         return pass;
     }

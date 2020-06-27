@@ -1,18 +1,26 @@
-//
-// Created by 洪至德 on 2020/6/11.
-//
-
 #include <iostream>
 #include "PlayerAgent.h"
 
 
-int PlayerAgent::get_actions(const std::vector<char> &state, char color, std::vector<int> possibles) {
+int PlayerAgent::get_action(Board board, char color, std::vector<int> possibles) {
     if (possibles.empty()) {
         return 100;
     }
+    readClicks = true;
     int x, y;
-    std::cin >> x >> y;
-    return x*8+y;
+    while (true){
+        if (!clicks.empty()){
+            if(true){
+                x = 3;
+                y = 2;
+
+                break;
+            }
+        }
+    }
+    clicks.clear();
+    readClicks = false;
+    return y*8+x;
 }
 
 PlayerAgent::PlayerAgent() {

@@ -1,30 +1,36 @@
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <vector>
 #include <cmath>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <vector>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <mingw.thread.h>
 #include "Reversi.h"
+#include "PlayerAgent.h"
 
+int display_init();
+void thread_function();
+
+std::vector<char, std::allocator<char>> state;
 unsigned int gridVAO, gridVBO, gridEBO, VAO, VBO, EBO, shaderProgram, uniformLocationColor;
 std::vector<unsigned int> circleVAOS, circleVBOS;
 GLFWwindow* window;
 bool mouseIn = false;
 int windowWidth, windowHeight, frameBufferWidth, frameBufferHeight;
-
-int init();
+PlayerAgent player1, player2;
+Reversi reversi(player1, player2);
 
 int main()
 {
-//    PlayerAgent player1;
-//    PlayerAgent player2;
-//    Reversi reversi(player1, player2);
-//    reversi.start();
+//    player1.get_callback();
+    reversi.init();
+    std::thread t(&thread_function);
+    return display_init();
+}
 
-    init();
-
-    return 0;
+void thread_function(){
+    reversi.play();
 }
 
 unsigned int CompileShader(unsigned int type, const std::string& source)
@@ -106,7 +112,6 @@ void setup_draw(){
     shaderProgram = CreateShader(vertexShaderSrc, fragmentShaderSrc);
     uniformLocationColor = glGetUniformLocation(shaderProgram, "u_Color");
 
-    // glGenBuffers(1, &EBO);
     // grid
     std::vector<float> gridVertices;
     for (int i = 0; i < 8; ++i) {
@@ -148,7 +153,9 @@ void setup_draw(){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gridEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, gridIndices.size() * sizeof(float), &gridIndices.front(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // circles
     for (int i = 0; i < 64; ++i) {
@@ -156,7 +163,7 @@ void setup_draw(){
         glGenBuffers(1, &VBO);
         circleVAOS.push_back(VAO);
         circleVBOS.push_back(VBO);
-        std::vector<float> tmp = CreateCircleArray(0.08, -0.7 + i%7*0.2, 0.7 - i/7*0.2, 40);
+        std::vector<float> tmp = CreateCircleArray(0.08, -0.7 + i%8*0.2, 0.7 - i/8*0.2, 100);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, tmp.size() * sizeof(float), &tmp.front(), GL_STATIC_DRAW);
@@ -164,16 +171,13 @@ void setup_draw(){
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-
-
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-//    glBindVertexArray(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void draw(){
     /* Render here */
-    glClearColor(0.9, 0.9, 0.9, 1);
+    glClearColor(0.8, 0.8, 0.8, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(shaderProgram);
 
@@ -181,13 +185,36 @@ void draw(){
     glBindVertexArray(gridVAO);
     glUniform4f(uniformLocationColor, 0, 0, 0, 1);
     glDrawElements(GL_LINES, 36, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 
-    glBindVertexArray(0);
-    glBindVertexArray(circleVAOS[1]);
-    glUniform4f(uniformLocationColor, 0.1, 0.1, 0.1, 1);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 40);
-//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
+    // draw circles
+//    std::cout << reversi.getBoard();
+    for (int i = 0; i < 64; ++i) {
+        char piece = reversi.getBoard().map[i];
+        if(piece == 'O'){
+//            printf("b%d\n", i);
+            glBindVertexArray(circleVAOS[i]);
+            glUniform4f(uniformLocationColor, 0.1, 0.1, 0.1, 1);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 100);
+            glBindVertexArray(0);
+        }else if(piece == 'X'){
+//            printf("w%d\n", i);
+            glBindVertexArray(circleVAOS[i]);
+            glUniform4f(uniformLocationColor, 1, 1, 1, 1);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 100);
+            glUniform4f(uniformLocationColor, 0.1, 0.1, 0.1, 1);
+            glDrawArrays(GL_LINE_LOOP, 0, 100);
+            glBindVertexArray(0);
+        }else if(piece == '-'){
+//            printf("-");
+        }
+    }
+//    printf("\n");
+//    glBindVertexArray(circleVAOS[1]);
+//    glUniform4f(uniformLocationColor, 0.1, 0.1, 0.1, 1);
+//    glDrawArrays(GL_TRIANGLE_FAN, 0, 40);
+//    glBindVertexArray(0);
+
     /* Swap front and back buffers */
     glfwSwapBuffers(window);
 }
@@ -231,14 +258,20 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-//        printf("%f, %f\n", xpos, ypos);
+        printf("%f, %f\n", xpos, ypos);
 //        printf("%f, %f\n", xpos/(windowWidth-1)*2-1, -ypos/(windowHeight-1)*2+1);
-
+        if(player1.readClicks){
+            std::cout << "player1" << std::endl;
+            player1.clicks.emplace_back(xpos, ypos);
+        }
+        if(player2.readClicks){
+            std::cout << "player2" << std::endl;
+            player2.clicks.emplace_back(xpos, ypos);
+        }
     }
 }
 
-
-int init(){
+int display_init(){
     /* Initialize the library */
     if (!glfwInit())
         return -1;
@@ -284,8 +317,4 @@ int init(){
 
     glfwTerminate();
     return 0;
-}
-
-void render() {
-
 }

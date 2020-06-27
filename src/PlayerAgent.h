@@ -1,18 +1,16 @@
-//
-// Created by 洪至德 on 2020/6/11.
-//
-
 #ifndef REVERSI_PLAYERAGENT_H
 #define REVERSI_PLAYERAGENT_H
 
 
 #include "Agent.h"
+#include "Renderer.h"
 
 class PlayerAgent : public Agent{
 public:
     PlayerAgent();
-    int get_actions(const std::vector<char>& state, char color, std::vector<int> possibles) override;
-private:
+    int get_action(Board board, char color, std::vector<int> possibles) override;
+    bool readClicks = false;
+    std::vector<std::pair<double, double>> clicks;
 };
 
 
