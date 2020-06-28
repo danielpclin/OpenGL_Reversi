@@ -12,7 +12,9 @@ void Board::reset() {
             map.push_back('-');
         }
     } else {
-        for(char i : map) i = '-';
+        for (int idx=0; idx<length*length; idx++) {
+            map[idx] = '-';
+        }
     }
     map[28] = 'O';
     map[35] = 'O';

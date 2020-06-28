@@ -8,11 +8,10 @@
 class Reversi {
 public:
     Reversi(Agent& agent1, Agent& agent2);
-//    Reversi(PlayerAgent player1, PlayerAgent player2);
-//    ~Reversi();
     void init();
     void play();
-    Board getBoard();
+    bool gameEnd();
+    Board getBoard() const;
 private:
     Agent &agent1, &agent2;
     Reversi_env reversiEnv;

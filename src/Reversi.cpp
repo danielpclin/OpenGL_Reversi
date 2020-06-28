@@ -4,7 +4,7 @@
 Reversi::Reversi(Agent& agent1, Agent& agent2 ): agent1(agent1), agent2(agent2) {
 }
 
-Board Reversi::getBoard(){
+Board Reversi::getBoard() const{
     return reversiEnv.board;
 }
 
@@ -53,4 +53,8 @@ void Reversi::play() {
 void Reversi::init(){
     reversiEnv.reset();
     Reversi_env::draw_board(reversiEnv.board);
+}
+
+bool Reversi::gameEnd() {
+    return reversiEnv.done();
 }

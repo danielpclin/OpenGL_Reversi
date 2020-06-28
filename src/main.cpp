@@ -2,8 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <cmath>
-#include <fstream>
-#include <sstream>
 #include <iostream>
 #include <mingw.thread.h>
 #include <glm/glm.hpp>
@@ -30,16 +28,16 @@ PlayerAgent agent1;
 ComputerAgent agent2;
 Reversi reversi(agent1, agent2);
 Shader* textShader;
+std::thread t(&thread_function);
 
 int main()
 {
-//    player1.get_callback();
-    reversi.init();
-    std::thread t(&thread_function);
+//    t.detach();
     return display_init();
 }
 
 void thread_function(){
+    reversi.init();
     reversi.play();
 }
 
@@ -135,15 +133,26 @@ void RenderText(Shader* shader, std::string text, float x, float y, float scale,
 
     // iterate through all characters
     std::string::const_iterator c;
+    if(alignCenter){
+        float totalWidth = 0;
+        for (c = text.begin(); c != text.end(); c++){
+            Character ch = Characters[*c];
+            totalWidth += (ch.Advance >> 6) * scale;
+        }
+        x -= totalWidth/2;
+//        y -= Characters[*text.begin()].Size.y/2;
+    }
+
     for (c = text.begin(); c != text.end(); c++)
     {
         Character ch = Characters[*c];
 
+        float w = ch.Size.x * scale;
+        float h = ch.Size.y * scale;
+
         float xpos = x + ch.Bearing.x * scale;
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
         // update VBO for each character
         float vertices[6][4] = {
                 { xpos,     ypos + h,   0.0f, 0.0f },
@@ -199,7 +208,7 @@ void setup_draw(){
     }
     else {
         // set size to load glyphs as
-        FT_Set_Pixel_Sizes(face, 0, 48);
+        FT_Set_Pixel_Sizes(face, 0, 128);
 
         // disable byte-alignment restriction
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -325,9 +334,9 @@ void draw(){
     /* Render here */
     glClearColor(0.8, 0.8, 0.8, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    RenderText(textShader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-    RenderText(textShader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+    std::pair<int, int> score = reversi.getBoard().get_score();
+    std::string standings = "Black " + std::to_string(score.first) + " - White " + std::to_string(score.second);
+    RenderText(textShader, standings, ((float)frameBufferWidth)/2, (float)(frameBufferHeight*0.92), ((float)frameBufferHeight)/2000, glm::vec3(0.2f, 0.2f, 0.2f), true);
 
     glUseProgram(shaderProgram);
     // draw grid
@@ -337,17 +346,14 @@ void draw(){
     glBindVertexArray(0);
 
     // draw circles
-//    std::cout << reversi.getBoard();
     for (int i = 0; i < 64; ++i) {
         char piece = reversi.getBoard().map[i];
         if(piece == 'O'){
-//            printf("b%d\n", i);
             glBindVertexArray(circleVAOS[i]);
             glUniform4f(uniformLocationColor, 0.1, 0.1, 0.1, 1);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 100);
             glBindVertexArray(0);
         }else if(piece == 'X'){
-//            printf("w%d\n", i);
             glBindVertexArray(circleVAOS[i]);
             glUniform4f(uniformLocationColor, 1, 1, 1, 1);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 100);
@@ -355,14 +361,19 @@ void draw(){
             glDrawArrays(GL_LINE_LOOP, 0, 100);
             glBindVertexArray(0);
         }else if(piece == '-'){
-//            printf("-");
         }
     }
-//    printf("\n");
-//    glBindVertexArray(circleVAOS[1]);
-//    glUniform4f(uniformLocationColor, 0.1, 0.1, 0.1, 1);
-//    glDrawArrays(GL_TRIANGLE_FAN, 0, 40);
-//    glBindVertexArray(0);
+
+    if(reversi.gameEnd()){
+
+        if(score.first > score.second){
+            RenderText(textShader, "Black Win", ((float)frameBufferWidth)/2, ((float)frameBufferHeight)/2, ((float)frameBufferHeight)/2000, glm::vec3(0.2f, 0.2f, 0.2f), true);
+        }else if(score.first < score.second){
+            RenderText(textShader, "White Win", ((float)frameBufferWidth)/2, ((float)frameBufferHeight)/2, ((float)frameBufferHeight)/2000, glm::vec3(0.2f, 0.2f, 0.2f), true);
+        }else{
+            RenderText(textShader, "Draw", ((float)frameBufferWidth)/2, ((float)frameBufferHeight)/2, ((float)frameBufferHeight)/2000, glm::vec3(0.2f, 0.2f, 0.2f), true);
+        }
+    }
 
     /* Swap front and back buffers */
     glfwSwapBuffers(window);
@@ -371,12 +382,10 @@ void draw(){
 void window_size_callback(GLFWwindow* window, int width, int height){
     windowWidth = width;
     windowHeight = height;
-//    printf("window: %d, %d\n", width, height);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-//    printf("framebuffer: %d, %d\n", width, height);
     frameBufferWidth = width;
     frameBufferHeight = height;
     textShader->use();
@@ -422,6 +431,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             std::cout << "player2" << std::endl;
             dynamic_cast<PlayerAgent&>(agent2).clicks.emplace(glxpos, glypos);
         }
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
+//        t.join();
+        t.join();
+        t = std::thread(&thread_function);
     }
 }
 
