@@ -6,7 +6,7 @@ project(OpenGL_Practice)
 set(CMAKE_CXX_STANDARD 14)
 
 
-add_executable(OpenGL_Practice src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h)
+add_executable(OpenGL_Practice src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h src/ComputerAgent.cpp src/ComputerAgent.h src/Shader.h)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
@@ -58,11 +58,26 @@ ExternalProject_Add(
         PREFIX "${CMAKE_CURRENT_BINARY_DIR}/glm"
         URL "https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip"
         CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${GLM_DIR}"
-        INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/glm ${PROJECT_SOURCE_DIR}/${GLM_DIR}/include
+        INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/glm ${PROJECT_SOURCE_DIR}/${GLM_DIR}/include/glm
 )
 include_directories(${PROJECT_NAME} ${GLM_DIR}/include)
 add_dependencies(${PROJECT_NAME} GLM)
 # GLM END
+
+# FREETYPE
+set(FREETYPE_DIR dependencies/freetype)
+ExternalProject_Add(
+        FREETYPE
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/freetype"
+        URL "https://download.savannah.gnu.org/releases/freetype/freetype-2.10.2.tar.gz"
+        CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${FREETYPE_DIR}"
+)
+add_library(FREETYPE_LIB STATIC IMPORTED REQUIRED)
+set_target_properties(FREETYPE_LIB PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/${FREETYPE_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX})
+include_directories(${PROJECT_NAME} ${FREETYPE_DIR}/include/freetype2)
+target_link_libraries(${PROJECT_NAME} FREETYPE_LIB)
+add_dependencies(${PROJECT_NAME} FREETYPE)
+# FREETYPE END
 
 # GLFW
 set(GLFW_DIR dependencies/glfw)

@@ -3,14 +3,14 @@
 
 
 #include "Agent.h"
-#include "Renderer.h"
+#include <queue>
 
 class PlayerAgent : public Agent{
 public:
     PlayerAgent();
     int get_action(Board board, char color, std::vector<int> possibles) override;
     bool readClicks = false;
-    std::vector<std::pair<double, double>> clicks;
+    std::queue<std::pair<double, double>> clicks;
 };
 
 

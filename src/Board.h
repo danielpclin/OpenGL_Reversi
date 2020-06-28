@@ -1,7 +1,3 @@
-//
-// Created by 洪至德 on 2020/6/9.
-//
-
 #ifndef REVERSI_BOARD_H
 #define REVERSI_BOARD_H
 #include <vector>

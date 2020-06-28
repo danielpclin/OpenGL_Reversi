@@ -1,7 +1,3 @@
-//
-// Created by 洪至德 on 2020/6/9.
-//
-
 #include <iostream>
 #include "Board.h"
 

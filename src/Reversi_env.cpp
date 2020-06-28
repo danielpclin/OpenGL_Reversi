@@ -1,7 +1,3 @@
-//
-// Created by 洪至德 on 2020/6/9.
-//
-
 #include <iostream>
 #include "Reversi_env.h"
 
@@ -34,9 +30,13 @@ int Reversi_env::step(int action) {
     }
     if (done()) return game_over;
     else if (action == 100){
-        // TODO check if no actions can be taken
-        board.swap_color();
-        return pass;
+        if (possible_moves.empty()){
+            board.swap_color();
+            pass_count++;
+            return pass;
+        }else{
+            return you_lose;
+        }
     }
     else if (!is_valid(position_to_index(std::make_pair(position.first, position.second)))) return you_lose;
     else {

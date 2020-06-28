@@ -1,7 +1,3 @@
-//
-// Created by 洪至德 on 2020/6/10.
-//
-
 #ifndef REVERSI_AGENT_H
 #define REVERSI_AGENT_H
 
