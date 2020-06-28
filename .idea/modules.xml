@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../OpenGL_Practice/.idea/OpenGL.iml" filepath="$PROJECT_DIR$/../OpenGL_Practice/.idea/OpenGL.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/OpenGL_Reversi.iml" filepath="$PROJECT_DIR$/.idea/OpenGL_Reversi.iml" />
     </modules>
   </component>
 </project>

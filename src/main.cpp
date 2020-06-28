@@ -408,6 +408,12 @@ void draw(){
         }else if(piece == '-'){
         }
     }
+    for(int i : reversi.possibleMoves()){
+        glBindVertexArray(circleVAOS[i]);
+        glUniform4f(uniformLocationColor, 0.53, 0.85, 0.411, 0.6);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 100);
+        glBindVertexArray(0);
+    }
 
     if(reversi.gameEnd()){
         glBindVertexArray(gameoverVAO);
@@ -462,7 +468,8 @@ void cursor_enter_callback(GLFWwindow* window, int entered)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-
+    mouseXPos = xpos;
+    mouseYPos = ypos;
 //    printf("%f, %f", xpos, ypos);
 }
 

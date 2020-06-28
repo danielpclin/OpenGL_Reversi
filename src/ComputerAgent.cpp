@@ -30,7 +30,7 @@ int ComputerAgent::minimax(Board board, int color, int search_depth, int current
         std::vector<int> valid_actions = Reversi_env::get_possible_moves(board);
         for(int action : valid_actions){
             Board tmp_board = Reversi_env::make_place(board, action);
-            int tmp = minimax(tmp_board, search_depth, current_depth, !maximizing);
+            int tmp = minimax(tmp_board, search_depth, current_depth - 1, !maximizing);
             if(tmp >best_value){
                 if (search_depth == current_depth)
                     best_action = action;
@@ -41,7 +41,7 @@ int ComputerAgent::minimax(Board board, int color, int search_depth, int current
         std::vector<int> valid_actions = Reversi_env::get_possible_moves(board);
         for(int action : valid_actions){
             Board tmp_board = Reversi_env::make_place(board, action);
-            int tmp = minimax(tmp_board, search_depth, current_depth, !maximizing);
+            int tmp = minimax(tmp_board, search_depth, current_depth - 1, !maximizing);
             if(tmp < best_value){
                 if (search_depth == current_depth)
                     best_action = action;

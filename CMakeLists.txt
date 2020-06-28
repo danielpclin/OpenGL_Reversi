@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 include(ExternalProject)
 
-project(OpenGL_Practice)
+project(OpenGL_Reversi)
 
 set(CMAKE_CXX_STANDARD 14)
 
 
-add_executable(OpenGL_Practice src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h src/ComputerAgent.cpp src/ComputerAgent.h src/Shader.h)
+add_executable(OpenGL_Reversi src/main.cpp src/Agent.h src/Board.cpp src/Board.h src/PlayerAgent.cpp src/PlayerAgent.h src/Reversi.cpp src/Reversi.h src/Reversi_env.cpp src/Reversi_env.h src/ComputerAgent.cpp src/ComputerAgent.h src/Shader.h)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo")
