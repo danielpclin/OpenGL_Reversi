@@ -7,7 +7,7 @@
 
 class Agent {
 public:
-    virtual int get_action(Board board, char color, std::vector<int> possibles) = 0;
+    virtual int get_action(Board board, int color, std::vector<int> possibles) = 0;
 };
 
 

@@ -20,6 +20,7 @@ void Board::reset() {
     map[35] = 'O';
     map[27] = 'X';
     map[36] = 'X';
+    color = white;
 }
 
 void Board::swap_color() {

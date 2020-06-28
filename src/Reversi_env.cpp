@@ -12,7 +12,6 @@ void Reversi_env::draw_board(Board board) {
 
 Reversi_env::Reversi_env() {
     board.reset();
-    pass_count=0;
 }
 
 
@@ -75,6 +74,53 @@ int Reversi_env::step(int action) {
     return invalid;
 }
 
+Board Reversi_env::make_place(Board board, int action){
+    std::pair<int, int> position = index_to_position(action);
+    int pos_x, pos_y, temp_x, temp_y, count;
+    char current, opponent;
+    bool flipped = false;
+    if (board.color == board.white) {
+        current = 'O';
+        opponent = 'X';
+    } else {
+        current = 'X';
+        opponent = 'O';
+    }
+    if (action != 100){
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue;
+                pos_x = position.first + dx;
+                pos_y = position.second + dy;
+                count = 0;
+                if (pos_x >= 8 || pos_x < 0 || pos_y >= 8 || pos_y < 0) continue;
+                while (board.map[position_to_index(std::make_pair(pos_x, pos_y))] == opponent) {
+                    temp_x = pos_x + dx;
+                    temp_y = pos_y + dy;
+                    if (temp_x >= 8 || temp_x < 0 || temp_y >= 8 || temp_y < 0) break;
+                    count++;
+                    pos_x += dx;
+                    pos_y += dy;
+                }
+                if (count > 0 && board.map[position_to_index(std::make_pair(pos_x, pos_y))] == current) {
+                    board.map[position_to_index(std::make_pair(position.first, position.second))] = current;
+                    pos_x = position.first+dx;
+                    pos_y = position.second+dy;
+                    flipped = true;
+                    while (board.map[position_to_index(std::make_pair(pos_x, pos_y))] == opponent) {
+                        board.map[position_to_index(std::make_pair(pos_x, pos_y))] = current;
+                        pos_x += dx;
+                        pos_y += dy;
+                    }
+                    board.map[position_to_index(std::make_pair(pos_x, pos_y))] = current;
+                }
+            }
+        }
+    }
+    board.swap_color();
+    return board;
+}
+
 std::pair<int, int> Reversi_env::index_to_position(int index) {
     return std::make_pair((index)/8, (index)%8);
 }
@@ -89,6 +135,7 @@ bool Reversi_env::done() const {
 
 std::vector<char> Reversi_env::reset() {
     board.reset();
+    pass_count=0;
     return board.map;
 }
 
@@ -103,7 +150,7 @@ bool Reversi_env::is_valid(int index) {
     return false;
 }
 
-void Reversi_env::set_possible_moves() {
+std::vector<int> Reversi_env::get_possible_moves(Board board) {
     std::vector<int> possibles;
     for (int i=0; i<board.map.size(); i++) {
         std::pair<int, int> position = index_to_position(i);
@@ -141,5 +188,9 @@ void Reversi_env::set_possible_moves() {
             }
         }
     }
-    possible_moves = possibles;
+    return possibles;
+}
+
+void Reversi_env::set_possible_moves() {
+    possible_moves = get_possible_moves(board);
 }

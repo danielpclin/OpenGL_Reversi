@@ -8,7 +8,7 @@
 class PlayerAgent : public Agent{
 public:
     PlayerAgent();
-    int get_action(Board board, char color, std::vector<int> possibles) override;
+    int get_action(Board board, int color, std::vector<int> possibles) override;
     bool readClicks = false;
     std::queue<std::pair<double, double>> clicks;
 };

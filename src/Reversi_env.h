@@ -15,6 +15,8 @@ public:
     std::vector<int> get_possible_moves();
     static std::pair<int, int> index_to_position(int index);
     void set_possible_moves();
+    static std::vector<int> get_possible_moves(Board board);
+    static Board make_place(Board board, int action);
 private:
     enum step_results{invalid = 0, success = 1, pass = 2, game_over = 3, you_lose = 4};
     static int position_to_index(std::pair<int, int> position);

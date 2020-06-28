@@ -19,11 +19,12 @@ int display_init();
 void thread_function();
 
 std::vector<char, std::allocator<char>> state;
-unsigned int gridVAO, gridVBO, gridEBO, textVAO, textVBO, VAO, VBO, EBO, shaderProgram, uniformLocationColor;
+unsigned int gridVAO, gridVBO, gridEBO, textVAO, textVBO, VAO, VBO, gameoverVAO, gameoverVBO, gameoverEBO, shaderProgram, uniformLocationColor;
 std::vector<unsigned int> circleVAOS, circleVBOS;
 GLFWwindow* window;
 bool mouseIn = false;
 int windowWidth, windowHeight, frameBufferWidth, frameBufferHeight;
+double mouseXPos, mouseYPos;
 PlayerAgent agent1;
 ComputerAgent agent2;
 Reversi reversi(agent1, agent2);
@@ -32,7 +33,6 @@ std::thread t(&thread_function);
 
 int main()
 {
-//    t.detach();
     return display_init();
 }
 
@@ -306,7 +306,7 @@ void setup_draw(){
         gridIndices.push_back(40-i);
     }
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gridEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gridIndices.size() * sizeof(float), &gridIndices.front(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gridIndices.size() * sizeof(int), &gridIndices.front(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -328,6 +328,51 @@ void setup_draw(){
     }
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // gameover
+    std::vector<float> gameoverVertices;
+    gameoverVertices.push_back(-0.58);
+    gameoverVertices.push_back(0.18);
+    gameoverVertices.push_back(0.58);
+    gameoverVertices.push_back(0.18);
+    gameoverVertices.push_back(-0.58);
+    gameoverVertices.push_back(-0.08);
+    gameoverVertices.push_back(0.58);
+    gameoverVertices.push_back(-0.08);
+    gameoverVertices.push_back(-0.38);
+    gameoverVertices.push_back(-0.22);
+    gameoverVertices.push_back(0.38);
+    gameoverVertices.push_back(-0.22);
+    gameoverVertices.push_back(-0.38);
+    gameoverVertices.push_back(-0.38);
+    gameoverVertices.push_back(0.38);
+    gameoverVertices.push_back(-0.38);
+    std::vector<int> gameoverIndices;
+    glGenVertexArrays(1, &gameoverVAO);
+    glGenBuffers(1, &gameoverVBO);
+    glGenBuffers(1, &gameoverEBO);
+    glBindVertexArray(gameoverVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, gameoverVBO);
+    glBufferData(GL_ARRAY_BUFFER, gameoverVertices.size() * sizeof(float), &gameoverVertices.front(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    gameoverIndices.push_back(2);
+    gameoverIndices.push_back(1);
+    gameoverIndices.push_back(0);
+    gameoverIndices.push_back(2);
+    gameoverIndices.push_back(3);
+    gameoverIndices.push_back(1);
+    gameoverIndices.push_back(6);
+    gameoverIndices.push_back(5);
+    gameoverIndices.push_back(4);
+    gameoverIndices.push_back(6);
+    gameoverIndices.push_back(7);
+    gameoverIndices.push_back(5);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gameoverEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, gameoverIndices.size() * sizeof(int), &gameoverIndices.front(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void draw(){
@@ -365,7 +410,13 @@ void draw(){
     }
 
     if(reversi.gameEnd()){
-
+        glBindVertexArray(gameoverVAO);
+        glUniform4f(uniformLocationColor, 0.5, 0.5, 0.5, 0.8);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glUniform4f(uniformLocationColor, 0.973, 0.514, 0.475, 0.8);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void *)(6 * sizeof(int)));
+        glBindVertexArray(0);
+        RenderText(textShader, "RESTART", ((float)frameBufferWidth)/2, (float)(frameBufferHeight*0.325), ((float)frameBufferHeight)/2000, glm::vec3(0.2f, 0.2f, 0.2f), true);
         if(score.first > score.second){
             RenderText(textShader, "Black Win", ((float)frameBufferWidth)/2, ((float)frameBufferHeight)/2, ((float)frameBufferHeight)/2000, glm::vec3(0.2f, 0.2f, 0.2f), true);
         }else if(score.first < score.second){
@@ -411,6 +462,7 @@ void cursor_enter_callback(GLFWwindow* window, int entered)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
+
 //    printf("%f, %f", xpos, ypos);
 }
 
@@ -431,11 +483,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             std::cout << "player2" << std::endl;
             dynamic_cast<PlayerAgent&>(agent2).clicks.emplace(glxpos, glypos);
         }
-    }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
-//        t.join();
-        t.join();
-        t = std::thread(&thread_function);
+        if(reversi.gameEnd() && glxpos >= -0.38 && glxpos <= 0.38 && glypos <= -0.22 && glypos >= -0.38){
+            t.join();
+            t = std::thread(&thread_function);
+        }
     }
 }
 

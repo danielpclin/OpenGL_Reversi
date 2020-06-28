@@ -11,6 +11,7 @@ public:
     void init();
     void play();
     bool gameEnd();
+    std::vector<int> possibleMoves();
     Board getBoard() const;
 private:
     Agent &agent1, &agent2;

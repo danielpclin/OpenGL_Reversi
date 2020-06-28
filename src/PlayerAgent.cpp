@@ -2,7 +2,7 @@
 #include "PlayerAgent.h"
 #include <algorithm>
 
-int PlayerAgent::get_action(Board board, char color, std::vector<int> possibles) {
+int PlayerAgent::get_action(Board board, int color, std::vector<int> possibles) {
     if (possibles.empty()) {
         return 100;
     }

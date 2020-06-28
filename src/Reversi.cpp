@@ -9,7 +9,7 @@ Board Reversi::getBoard() const{
 }
 
 void Reversi::play() {
-    char color;
+    int color;
     int action, result;
     while (!reversiEnv.done()) {
         reversiEnv.set_possible_moves();
@@ -33,6 +33,7 @@ void Reversi::play() {
             std::cout << Reversi_env::index_to_position(i).first << " " << Reversi_env::index_to_position(i).second << std::endl;
         }
         (reversiEnv.board.color) ? color = 0 : color = 1;
+        std::cout << color;
         action = agent2.get_action(reversiEnv.board, color, reversiEnv.get_possible_moves());
         result = reversiEnv.step(action);
         if (result == 4 or !result) {
@@ -57,4 +58,8 @@ void Reversi::init(){
 
 bool Reversi::gameEnd() {
     return reversiEnv.done();
+}
+
+std::vector<int> Reversi::possibleMoves() {
+    return reversiEnv.get_possible_moves();
 }
