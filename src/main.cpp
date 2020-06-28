@@ -470,7 +470,6 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
     mouseXPos = xpos;
     mouseYPos = ypos;
-//    printf("%f, %f", xpos, ypos);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -480,14 +479,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         glfwGetCursorPos(window, &xpos, &ypos);
         glxpos = xpos/(windowWidth-1)*2-1;
         glypos = -ypos/(windowHeight-1)*2+1;
-        printf("%f, %f\n", xpos, ypos);
-        printf("%f, %f\n", glxpos, glypos);
         if(typeid(agent1) == typeid(PlayerAgent) && dynamic_cast<PlayerAgent&>(agent1).readClicks){
-            std::cout << "player1" << std::endl;
             dynamic_cast<PlayerAgent&>(agent1).clicks.emplace(glxpos, glypos);
         }
         if(typeid(agent2) == typeid(PlayerAgent) && dynamic_cast<PlayerAgent&>(agent2).readClicks){
-            std::cout << "player2" << std::endl;
             dynamic_cast<PlayerAgent&>(agent2).clicks.emplace(glxpos, glypos);
         }
         if(reversi.gameEnd() && glxpos >= -0.38 && glxpos <= 0.38 && glypos <= -0.22 && glypos >= -0.38){
@@ -542,7 +537,7 @@ int display_init(){
         /* Poll for and process events */
         glfwPollEvents();
     }
-
+    t.detach();
     glfwTerminate();
     return 0;
 }

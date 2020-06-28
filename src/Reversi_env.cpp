@@ -78,7 +78,6 @@ Board Reversi_env::make_place(Board board, int action){
     std::pair<int, int> position = index_to_position(action);
     int pos_x, pos_y, temp_x, temp_y, count;
     char current, opponent;
-    bool flipped = false;
     if (board.color == board.white) {
         current = 'O';
         opponent = 'X';
@@ -106,7 +105,6 @@ Board Reversi_env::make_place(Board board, int action){
                     board.map[position_to_index(std::make_pair(position.first, position.second))] = current;
                     pos_x = position.first+dx;
                     pos_y = position.second+dy;
-                    flipped = true;
                     while (board.map[position_to_index(std::make_pair(pos_x, pos_y))] == opponent) {
                         board.map[position_to_index(std::make_pair(pos_x, pos_y))] = current;
                         pos_x += dx;
