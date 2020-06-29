@@ -13,7 +13,6 @@ if(APPLE)
 endif()
 
 # MINGW THREAD
-#https://github.com/meganz/mingw-std-threads/archive/1.0.0.zip
 set(MINGW_THREAD_DIR dependencies/mingw_thread)
 ExternalProject_Add(
         MINGW_THREAD
@@ -66,12 +65,25 @@ add_dependencies(${PROJECT_NAME} GLM)
 
 # FREETYPE
 set(FREETYPE_DIR dependencies/freetype)
-ExternalProject_Add(
-        FREETYPE
-        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/freetype"
-        URL "https://download.savannah.gnu.org/releases/freetype/freetype-2.10.2.tar.gz"
-        CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${FREETYPE_DIR}"
-)
+if (APPLE)
+    ExternalProject_Add(
+            FREETYPE
+            PREFIX "${CMAKE_CURRENT_BINARY_DIR}/freetype"
+            URL "https://download.savannah.gnu.org/releases/freetype/freetype-2.10.2.tar.gz"
+            CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${FREETYPE_DIR}
+            -DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=ON
+            -DCMAKE_DISABLE_FIND_PACKAGE_BZip2=ON
+            -DCMAKE_DISABLE_FIND_PACKAGE_PNG=ON
+            -DCMAKE_DISABLE_FIND_PACKAGE_HarfBuzz=ON
+    )
+else()
+    ExternalProject_Add(
+            FREETYPE
+            PREFIX "${CMAKE_CURRENT_BINARY_DIR}/freetype"
+            URL "https://download.savannah.gnu.org/releases/freetype/freetype-2.10.2.tar.gz"
+            CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/${FREETYPE_DIR}
+    )
+endif ()
 add_library(FREETYPE_LIB STATIC IMPORTED REQUIRED)
 set_target_properties(FREETYPE_LIB PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/${FREETYPE_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX})
 include_directories(${PROJECT_NAME} ${FREETYPE_DIR}/include/freetype2)

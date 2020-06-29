@@ -3,7 +3,11 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#if defined(_WIN32_WINNT)
 #include <mingw.thread.h>
+#else
+#include <thread>
+#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
